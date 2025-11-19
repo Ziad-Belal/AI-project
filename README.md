@@ -1,95 +1,86 @@
 Football Player Performance Analyzer
-An interactive machine learning desktop application with real-time learning visualization.
-📌 Project Overview
+Overview
 
-This application analyzes real football player statistics using machine learning and visualizes how the model “learns” using an interactive animation.
+This project is a desktop application that analyzes football player statistics using machine learning.
+The application loads data from CSV files, processes the data, trains a clustering model, and provides visualizations that help explain how the model learns.
 
-Users can:
+The main idea is to make the machine learning process understandable by showing a step-by-step animation of the learning phase, rather than only showing the final result.
 
-Load player data from CSV files
+Objectives
 
-Train a machine learning model (K-Means clustering)
+Load and prepare football player datasets.
 
-Watch a simplified animation of the training process
+Train a simple machine learning model (K-Means).
 
-View clusters, graphs, and player performance insights
+Display player clusters and basic analysis.
 
-Interact with everything through a clean desktop UI
+Show an animated visualization of how the model learns.
 
-The project turns raw football statistics into an intelligent and visual experience.
+Provide a simple graphical interface for users to interact with the system.
 
-📂 Features
-✅ 1. Dataset Handling
+Features
 
-Load CSV files using Pandas
+Dataset Handling
 
-Inspect columns and data types
+Reads CSV files using Pandas.
 
-Select meaningful player performance metrics
+Checks available columns.
 
-Automatically clean and preprocess data
+Selects numerical performance features.
 
-✅ 2. Machine Learning Model
+Prepares the dataset for machine learning.
 
-K-Means clustering
+Machine Learning
 
-Groups players based on performance features
+Uses K-Means clustering to group players.
 
-Shows how players are similar or different
+Allows the user to trigger model training from the GUI.
 
-Real-time visualization of how centroids move during training
+Clusters are displayed after training.
 
-✅ 3. Learning Animation
+Learning Visualization
 
-Matplotlib animated visualization
+Shows how the algorithm moves centroids during training.
 
-Shows points entering clusters
+Helps the user understand the learning process visually.
 
-Updates centroids step-by-step
+Desktop Application (GUI)
 
-Demonstrates the “learning” process in a simple, visual way
+Built with Tkinter or PyQt.
 
-✅ 4. Desktop GUI
+Options include:
 
-Built using Tkinter / PyQt
+Load dataset
 
-Buttons for:
+Train model
 
-Load Dataset
+Show learning animation
 
-Train Model
+View analysis results
 
-Show Animation
+Integration
 
-Analyze Player
+Connects the dataset, model, animation, and GUI into one working application.
 
-Results displayed inside the app
+Can be exported as a Windows executable using PyInstaller.
 
-✅ 5. Integration & Output
-
-Combines ML + animations + UI
-
-Generates visual insights about players
-
-Can be exported as a Windows .exe
-
-🛠️ Technologies Used
+Technologies Used
 
 Python
 
-Pandas → data loading & cleaning
+Pandas
 
-NumPy → numeric operations
+NumPy
 
-Scikit-learn (sklearn) → K-Means model
+Scikit-learn
 
-Matplotlib → graphs & animations
+Matplotlib
 
-Tkinter / PyQt5 → GUI frontend
+Tkinter or PyQt5
 
-PyInstaller → export as .exe
+PyInstaller
 
-📁 Project Structure
+Project Structure
 AI-Project/
 │
 ├── data/
@@ -106,32 +97,33 @@ AI-Project/
 ├── README.md
 └── requirements.txt
 
-🚀 How to Run the Project
+How to Run
 
-Install required libraries:
+Install the required packages:
 
 pip install pandas numpy matplotlib scikit-learn pyinstaller
 
 
-Run the main application:
+Run the application:
 
 python main.py
 
 
-To generate an EXE:
+To create an executable:
 
 pyinstaller --onefile main.py
 
-🎯 Project Goal
+Purpose of the Project
 
-The goal of this project is to simulate how machine learning learns, in a way that is simple, fun, and visually impressive—making it perfect for presentations, competitions, and graduation projects.
+The project demonstrates how machine learning models can analyze real-world football data, while also focusing on making the learning process visible and easy to understand.
+It is designed to be both practical and educational.
 
-📌 Future Improvements
+Possible Future Additions
 
-Add player comparison tool
+Player comparison mode
 
-Add prediction models (e.g., expected rating)
+More advanced analysis and metrics
 
-Add team builder based on cluster similarity
+Improved animations
 
-Add advanced visualizations and dashboards
+Additional model types
