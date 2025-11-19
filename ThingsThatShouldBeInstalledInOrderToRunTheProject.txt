@@ -1,0 +1,17 @@
+Python 3.11 or newer
+
+Required Python libraries:
+- pandas
+- numpy
+- matplotlib
+- seaborn
+- scikit-learn
+- joblib
+
+Installation commands (run in terminal):
+pip install pandas
+pip install numpy
+pip install matplotlib
+pip install seaborn
+pip install scikit-learn
+pip install joblib
