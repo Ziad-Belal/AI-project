@@ -1,71 +1,91 @@
-def predict_player_value(player_row):
+def predict_player_value(product_row):
     """
-    Very simple estimation model.
-    Uses goals, assists, age, and league strength.
-    """
-
-    try:
-        goals = float(player_row.get("Gls", 0))
-    except:
-        goals = 0
-
-    try:
-        assists = float(player_row.get("Ast", 0))
-    except:
-        assists = 0
-
-    try:
-        age = float(player_row.get("Age", 30))
-    except:
-        age = 30
-
-    # Base performance score
-    performance = (goals * 4) + (assists * 3)
-
-    # Age factor (younger = higher value)
-    if age < 23:
-        age_factor = 1.5
-    elif age <= 28:
-        age_factor = 1.2
-    else:
-        age_factor = 0.8
-
-    # Final estimated value
-    value = performance * age_factor * 1.8
-
-    return f"${round(value, 2)}M"
-
-
-
-def predict_performance(player_row):
-    """
-    Predict next season performance based on Gls, Ast, MP.
+    Simple estimation model for product value.
+    Uses selling_price, profit_per_unit, and demand_score.
     """
 
     try:
-        goals = float(player_row.get("Gls", 0))
+        price = float(product_row.get("selling_price", 0))
     except:
-        goals = 0
+        price = 0
 
     try:
-        assists = float(player_row.get("Ast", 0))
+        profit = float(product_row.get("profit_per_unit", 0))
     except:
-        assists = 0
+        profit = 0
 
     try:
-        minutes = float(player_row.get("MP", 0))
+        demand = float(product_row.get("demand_score", 0))
     except:
-        minutes = 0
+        demand = 0
 
-    # Basic prediction model
-    predicted_goals = goals * 1.10      # +10%
-    predicted_assists = assists * 1.08  # +8%
+    # Base value score
+    value_score = price + (profit * 2) + (demand * 1.5)
 
-    if minutes < 500:
-        predicted_goals *= 0.7
-        predicted_assists *= 0.7
+    return round(value_score, 2)
+
+
+def predict_performance(product_row):
+    """
+    Predict future performance based on sales and expected revenue.
+    """
+
+    try:
+        sold_7 = float(product_row.get("units_sold_last_7_days", 0))
+    except:
+        sold_7 = 0
+
+    try:
+        sold_30 = float(product_row.get("units_sold_last_30_days", 0))
+    except:
+        sold_30 = 0
+
+    try:
+        expected_rev = float(product_row.get("expected_revenue", 0))
+    except:
+        expected_rev = 0
+
+    # Basic prediction logic
+    predicted_sales = sold_30 * 1.10  # +10%
+    predicted_revenue = expected_rev * 1.05  # +5%
 
     return {
-        "predicted_goals": round(predicted_goals, 2),
-        "predicted_assists": round(predicted_assists, 2)
+        "predicted_sales": round(predicted_sales, 2),
+        "predicted_revenue": round(predicted_revenue, 2)
     }
+
+
+# ======================================================
+#               RUNNING THE TOOL MANUALLY
+# ======================================================
+if __name__ == "__main__":
+    print("=== Enter Product Stats ===")
+
+    name = input("Product Name: ")
+    price = input("Selling Price: ")
+    profit = input("Profit per Unit: ")
+    demand = input("Demand Score: ")
+    sold7 = input("Units Sold Last 7 Days: ")
+    sold30 = input("Units Sold Last 30 Days: ")
+    expected_rev = input("Expected Revenue: ")
+
+    # Fake CSV Row
+    product_row = {
+        "product_name": name,
+        "selling_price": price,
+        "profit_per_unit": profit,
+        "demand_score": demand,
+        "units_sold_last_7_days": sold7,
+        "units_sold_last_30_days": sold30,
+        "expected_revenue": expected_rev
+    }
+
+    # Predictions
+    value = predict_player_value(product_row)
+    perf = predict_performance(product_row)
+
+    print("\n=== Product Prediction Results ===")
+    print(f"Product: {name}")
+    print(f"Estimated Product Value Score: {value}")
+    print(f"Predicted Sales (Next Period): {perf['predicted_sales']}")
+    print(f"Predicted Revenue: {perf['predicted_revenue']}")
