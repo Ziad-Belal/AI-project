@@ -1,8 +1,5 @@
 def search_player(df, name):
-    """
-    Search for a product by name in the dataframe.
-    """
-    product = df[df['product_name'].str.lower() == name.lower()]
-    if product.empty:
+    player = df[df['Player'].str.lower() == name.lower()]
+    if player.empty:
         return None
-    return product.iloc[0]
+    return player.iloc[0]
