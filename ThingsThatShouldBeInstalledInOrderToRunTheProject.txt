@@ -15,5 +15,5 @@ pip install matplotlib
 pip install seaborn
 pip install scikit-learn
 pip install joblib
-
+pip install customtkinter
 حطو الكلام دا في ال terminal و الدنيا هتشتغل
