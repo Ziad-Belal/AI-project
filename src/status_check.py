@@ -1,9 +1,10 @@
-def is_active(player_row):
-   
+def is_active(product_row):
+    """
+    Check if a product is 'active' (has sales in the last 7 days).
+    Returns True if units_sold_last_7_days > 0, else False.
+    """
     try:
-        return int(player_row.get('MP', 0)) > 0
+        return int(product_row.get('units_sold_last_7_days', 0)) > 0
     except ValueError:
-        # If MP is not a number, then he will be considered retired/inactive
+        # If value is missing or invalid, consider product inactive
         return False
-
-"here, what I said is that if the 'MP' (minutes played) value is greater than 0, the player is considered active. If the value cannot be converted to an integer (for example, if it's missing or not a number), the function will return False, indicating that the player is inactive."
