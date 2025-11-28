@@ -25,3 +25,4 @@ def load_and_combine():
     combined_df = combined_df.fillna("Unknown")
 
     return combined_df
+print("suii")
