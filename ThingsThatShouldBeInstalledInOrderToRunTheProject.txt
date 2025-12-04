@@ -17,3 +17,4 @@ pip install scikit-learn
 pip install joblib
 pip install customtkinter
 حطو الكلام دا في ال terminal و الدنيا هتشتغل
+test->ahmed
