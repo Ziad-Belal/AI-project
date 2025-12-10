@@ -1,3 +1,4 @@
+# main.py
 # Football AI Prediction System - Main GUI
 import customtkinter as ctk  # type: ignore
 import threading
@@ -9,7 +10,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from src.data_loader import load_and_combine
-from src.search import search_player
+from src.search import smart_search
 from src.status_check import is_active
 from src.predictor import predict_player_value, predict_performance, predict_from_input
 
@@ -247,10 +248,11 @@ class App(ctk.CTk):
         self.search_input_frame = ctk.CTkFrame(self.tab_search, fg_color="transparent")
         self.search_input_frame.pack(pady=(0, 20))
 
+        # single unified entry field (accepts natural-language queries)
         self.entry_player = ctk.CTkEntry(
             self.search_input_frame, 
-            placeholder_text="Enter Player Name (e.g., Messi, Ronaldo, Mbappé)", 
-            width=550, 
+            placeholder_text="Type any word or phrase (e.g., 'Messi', 'top scorer', 'Barcelona defender')", 
+            width=650, 
             height=50,
             font=("Roboto", 16),
             corner_radius=10,
@@ -347,9 +349,9 @@ class App(ctk.CTk):
 
     def run_search_animation(self):
         """Run search and prediction animation"""
-        player_name = self.entry_player.get()
-        if not player_name:
-            self.after_idle(lambda: self._show_message("⚠️ Please enter a player name!", is_error=True))
+        raw_query = self.entry_player.get()
+        if not raw_query:
+            self.after_idle(lambda: self._show_message("⚠️ Please enter a player name or query!", is_error=True))
             return
         
         if self.players_df is None:
@@ -359,10 +361,10 @@ class App(ctk.CTk):
         # Clear frame
         self.after_idle(self._clear_frame)
 
-        # Search player
-        player = search_player(self.players_df, player_name)
+        # Search player using smart_search
+        player = smart_search(raw_query, self.players_df)
         if player is None:
-            self.after_idle(lambda: self._show_message(f"❌ Player '{player_name}' not found in database.", is_error=True))
+            self.after_idle(lambda q=raw_query: self._show_message(f"❌ No matching player or result found for: '{q}'", is_error=True))
             return
 
         # Animation steps
