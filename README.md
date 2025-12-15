@@ -1,79 +1,127 @@
-<<<<<<< HEAD
-
-=======
+a
 # ⚽ Football AI Prediction System
 
-A machine learning-powered application that predicts football player performance and market value based on goals, assists, minutes played, and age.
+A **Python-based GUI application** that predicts football player performance and market value using **Machine Learning models**, and provides interactive **team and match analysis** with animated visualizations.
 
-## Features
+---
 
-- **Direct Input Prediction**: Enter player statistics directly (goals, assists, minutes played, age) to get predictions
-- **Player Search**: Search for players in the database and get predictions
-- **ML-Powered**: Uses Random Forest models trained on historical player data
-- **Next Match Prediction**: Predicts goals and assists for the next match
-- **Market Value Estimation**: Estimates transfer market value in millions
+## 📌 Project Overview
 
-## Setup
+This project is a CAI3101 Artificial Intelligence course assignment. It demonstrates the **end-to-end workflow of a machine learning project**, including:
 
-1. **Activate the virtual environment** (if not already activated):
-   ```bash
-   source bin/activate
-   ```
+- Data preprocessing and feature engineering
+- Training and applying predictive models
+- GUI-based visualization of results
+- Interactive team and match analysis animations
 
-2. **Train the ML models** (first time only):
-   ```bash
-   python train_models.py
-   ```
-   This will train the models using the CSV data and save them in the `models/` directory.
+The goal is to help football managers and analysts **explore player performance, market value, and match strategies** efficiently.
 
-3. **Run the application**:
-   ```bash
-   python main.py
-   ```
+---
 
-## Usage
+## 🛠 Features
 
-### Direct Input Mode
-1. Click on the "📊 Direct Input" tab
-2. Enter:
-   - **Goals**: Number of goals scored
-   - **Assists**: Number of assists
-   - **Minutes Played**: Total minutes played in the season
-   - **Age**: Player's age (16-50)
-3. Click "🎯 Predict Performance & Value"
-4. View the predictions for next match performance and market value
+### 1. Player Performance Prediction
+- Predict goals, assists, and overall performance score based on **current season statistics**.
+- Estimate **market value** using trained ML models or fallback heuristic methods.
 
-### Search Player Mode
-1. Click on the "🔍 Search Player" tab
-2. Enter a player name (e.g., "Messi", "Ronaldo", "Mbappé")
-3. Click "🔍 Search"
-4. View the player's statistics and predictions
+### 2. Search Player
+- Search for a player by name.
+- Retrieve detailed statistics from connected CSV datasets.
+- Handles missing data and inactive players gracefully.
 
-## Requirements
+### 3. Direct Input Prediction
+- Enter custom player stats (goals, assists, minutes, age) to predict **next match performance and market value**.
 
-The required packages are listed in `ThingsThatShouldBeInstalledInOrderToRunTheProject.txt`. Main dependencies:
-- customtkinter
-- pandas
-- numpy
-- scikit-learn
-- matplotlib (for model training visualization)
+### 4. Team & Match Analysis (Animated Demo)
+- Visualizes a football pitch with players and ball movements.
+- Demonstrates **possession, counter-attacks, and tactical patterns** with animations.
+- Can be expanded with real match data for in-depth tactical analysis.
 
-## Data
+---
 
-The system uses two CSV files:
-- `data/All_Players.csv`: Historical player data
-- `data/Season.csv`: Season-specific player data
+## 💻 Installation
 
-## Model Details
+1. Clone the repository:
 
-- **Performance Model**: Random Forest Regressor predicting next match contribution
-- **Value Model**: Random Forest Regressor predicting market value
-- **Features**: Goals, Assists, Minutes Played, Age
-- **Training**: Models are trained on combined historical data with synthetic targets based on performance patterns
+```bash
+git clone https://github.com/<your-username>/football-ai-prediction.git
+cd football-ai-prediction
 
-## Notes
+2. Install dependencies:
 
-- Models are automatically loaded when the application starts
-- If models are not found, the system uses fallback prediction methods
-- First run requires training the models with `train_models.py`
->>>>>>> 65fd4a7378c88c28d7a7db05704a0dcaf8d800be
+
+
+pip install -r requirements.txt
+
+3. Run the application:
+
+
+
+python main.py
+
+
+---
+
+🗂 Project Structure
+
+football-ai-prediction/
+│
+├─ main.py                 # Main GUI application
+├─ requirements.txt        # Python dependencies
+├─ README.md
+│
+├─ src/
+│   ├─ data_loader.py      # Load and combine CSV datasets
+│   ├─ search.py           # Player search logic
+│   ├─ status_check.py     # Check player activity status
+│   ├─ predictor.py        # ML-based performance and market value predictions
+│   └─ model_trainer.py    # Model loading and helper functions
+│
+└─ datasets/
+    ├─ players.csv         # Player stats dataset
+    └─ teams.csv           # Team and match data (optional)
+
+```
+---
+
+🔧 How to Use
+
+1. Direct Input Tab
+
+Enter goals, assists, minutes played, and age.
+
+Click Predict Performance & Value.
+
+View detailed predictions in the results frame.
+
+
+
+2. Search Player Tab
+
+Type the player name in the search box.
+
+Click Search.
+
+If the player exists in the dataset, detailed stats and predictions will be displayed.
+
+
+
+3. Team & Match Analysis Tab
+
+View animated visualizations of counter-attacks, possession, and tactical movements.
+
+Expand by connecting real match data from CSVs.
+
+
+
+
+
+---
+
+📊 Models Used
+
+Random Forest Regressor for predicting market value.
+
+Random Forest Regressor for performance score.
+
+Fallback heuristic calculations if models are unavailable.
