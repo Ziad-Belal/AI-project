@@ -2,6 +2,7 @@
 import difflib
 import re
 import pandas as pd
+from collections import deque
 
 from .utils import (
     normalize_text,
@@ -10,6 +11,70 @@ from .utils import (
     extract_integers,
     parse_comparison
 )
+
+# Depth First Search (DFS)
+def DFS(graph, start):
+    visited = set()
+    stack = [start]
+
+    while stack:
+        node = stack.pop()
+        if node not in visited:
+            visited.add(node)
+            print(node, end=' ')
+            # reverse to keep order similar to recursive DFS
+            stack.extend(reversed(graph[node]))
+
+# Breadth First Search (BFS)
+def BFS(graph, start):
+    visited = set()
+    queue = deque([start])
+
+    while queue:
+        node = queue.popleft()
+        if node not in visited:
+            visited.add(node)
+            print(node, end=' ')
+            queue.extend(graph[node])
+
+def _build_player_graph(df: pd.DataFrame):
+    """Build a graph where players are nodes, edges if same squad"""
+    graph = {}
+    for _, row in df.iterrows():
+        player = row['Player']
+        squad = row['Squad']
+        if player not in graph:
+            graph[player] = []
+        teammates = df[df['Squad'] == squad]['Player'].tolist()
+        for tm in teammates:
+            if tm != player and tm not in graph[player]:
+                graph[player].append(tm)
+    return graph
+
+def _graph_search_related(query: str, df: pd.DataFrame):
+    """Search for related players using graph traversal"""
+    q = normalize_text(query)
+    if "teammates of" in q or "teammates" in q:
+        # Extract player name
+        player_part = q.replace("teammates of", "").replace("teammates", "").strip()
+        row = _match_player_by_name(df, player_part, threshold=0.7)
+        if row is not None:
+            graph = _build_player_graph(df)
+            start = row['Player']
+            # Use BFS to find teammates
+            visited = set()
+            queue = deque([start])
+            teammates = []
+            while queue:
+                node = queue.popleft()
+                if node not in visited:
+                    visited.add(node)
+                    if node != start:
+                        teammates.append(node)
+                    queue.extend(graph.get(node, []))
+            if teammates:
+                return df[df['Player'].isin(teammates)].iloc[0]
+    return None
 
 def _fuzzy_choice(query, choices, cutoff=0.6):
     """
@@ -62,18 +127,24 @@ def smart_search(query: str, df: pd.DataFrame):
     Smart search that accepts any English input and returns a single player row (pandas Series),
     or None if nothing matched.
     Rules implemented (in priority order):
-      1. Try fuzzy player name match.
-      2. Handle ranked requests: 'top scorer', 'most assists', 'highest value'.
-      3. Keyword -> column mapping (e.g., 'goals', 'assists', 'age', 'team').
+      1. Graph-based search for related players (e.g., teammates).
+      2. Try fuzzy player name match.
+      3. Handle ranked requests: 'top scorer', 'most assists', 'highest value'.
+      4. Keyword -> column mapping (e.g., 'goals', 'assists', 'age', 'team').
          It supports numeric comparisons like 'more than 10 goals', 'age < 25'.
-      4. Position synonyms: 'goalkeeper', 'defender', 'midfielder', 'forward'.
-      5. Fuzzy match squad/team, nation, position when query looks like a name.
+      5. Position synonyms: 'goalkeeper', 'defender', 'midfielder', 'forward'.
+      6. Fuzzy match squad/team, nation, position when query looks like a name.
     """
     if query is None:
         return None
     q = normalize_text(query)
 
-    # 1) direct player name fuzzy match
+    # 1) Graph-based search for related players
+    row = _graph_search_related(query, df)
+    if row is not None:
+        return row
+
+    # 2) direct player name fuzzy match
     row = _match_player_by_name(df, q, threshold=0.7)
     if row is not None:
         return row
