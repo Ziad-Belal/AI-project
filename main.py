@@ -1,143 +1,143 @@
-# gui_main_realistic_full.py
 import customtkinter as ctk
 import threading
-import time
+import sys
+import os
 
-# Project modules (future-proofed imports)
+project_root = os.path.dirname(os.path.abspath(__file__))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from src.data_loader import load_and_combine
-from src.search import search_player
-from src.status_check import is_active
-from src.predictor import predict_player_value, predict_performance
+from src.prediction_handler import PredictionHandler
+from src.ui_components import InputTab, SearchTab, ResultsDisplay, FIELD_DARK_GREEN, FIELD_GREEN, GOLD, WHITE
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
-
-class AnimatedLabel(ctk.CTkLabel):
-    def flash(self, duration=0.5):
-        self.configure(fg_color="#1abc9c")
-        self.after(int(duration * 1000), lambda: self.configure(fg_color="transparent"))
-
-
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("Football AI Prediction - Realistic GUI")
-        self.geometry("1200x750")
+        self.title("⚽ Football AI Prediction System ⚽")
+        self.geometry("1600x1000")
+        self.configure(fg_color=FIELD_DARK_GREEN)
+        
+        self.players_df = None
+        threading.Thread(target=self._load_data, daemon=True).start()
+        
+        self._setup_ui()
+        self.prediction_handler = PredictionHandler(self._on_prediction_update)
 
-        # Load CSV for optional future use
-        self.players_df = load_and_combine()  # optional
-
-        # Title
-        self.label_title = ctk.CTkLabel(self, text="Football AI Player Prediction", font=("Roboto", 24, "bold"))
-        self.label_title.pack(pady=20)
-
-        # Player Name
-        self.entry_player = ctk.CTkEntry(self, placeholder_text="Enter Player Name", width=400, font=("Roboto", 14))
-        self.entry_player.pack(pady=5)
-
-        # Stats Entries
-        self.entry_goals = ctk.CTkEntry(self, placeholder_text="Goals (Gls)", width=200)
-        self.entry_goals.pack(pady=2)
-        self.entry_assists = ctk.CTkEntry(self, placeholder_text="Assists (Ast)", width=200)
-        self.entry_assists.pack(pady=2)
-        self.entry_age = ctk.CTkEntry(self, placeholder_text="Age", width=200)
-        self.entry_age.pack(pady=2)
-        self.entry_minutes = ctk.CTkEntry(self, placeholder_text="Minutes Played (MP)", width=200)
-        self.entry_minutes.pack(pady=2)
-
-        # Predict Button
-        self.button_predict = ctk.CTkButton(self, text="Predict", width=120, command=self.start_thread)
-        self.button_predict.pack(pady=10)
-
-        # Animation Frame
-        self.frame_animation = ctk.CTkFrame(self, width=1100, height=500, corner_radius=15)
-        self.frame_animation.pack(pady=20)
-        self.frame_animation.pack_propagate(False)
-
-    def start_thread(self):
-        threading.Thread(target=self.run_animation).start()
-
-    def run_animation(self):
-        player_name = self.entry_player.get().strip()
-        if not player_name:
-            return
-
-        # Clear frame
-        for widget in self.frame_animation.winfo_children():
-            widget.destroy()
-
-        # Animation steps
-        steps = [
-            "Loading Player Data...",
-            "Selecting Important Features...",
-            "Cleaning and Normalizing Data...",
-            "Model Processing / Prediction..."
-        ]
-
-        label_step = AnimatedLabel(self.frame_animation, text="", font=("Roboto", 18, "bold"))
-        label_step.pack(pady=20)
-        self.frame_animation.update()
-
-        for step in steps:
-            label_step.configure(text=step)
-            label_step.flash()
-            self.frame_animation.update()
-            time.sleep(1)
-
-        # Collect inputs (default 0 if empty)
-        try:
-            goals = float(self.entry_goals.get()) if self.entry_goals.get().strip() else 0
-            assists = float(self.entry_assists.get()) if self.entry_assists.get().strip() else 0
-            age = float(self.entry_age.get()) if self.entry_age.get().strip() else 25
-            minutes = float(self.entry_minutes.get()) if self.entry_minutes.get().strip() else 0
-        except:
-            goals = assists = age = minutes = 0
-
-        player_data = {
-            "Player": player_name,
-            "Gls": goals,
-            "Ast": assists,
-            "Age": age,
-            "MP": minutes
-        }
-
-        # Generate predictions
-        pred_value = predict_player_value(player_data)
-        pred_perf = predict_performance(player_data)
-        status = "ACTIVE"
-
-        # Final dashboard
-        for widget in self.frame_animation.winfo_children():
-            widget.destroy()
-
-        label_complete = ctk.CTkLabel(self.frame_animation, text="Prediction Complete!", font=("Roboto", 22, "bold"))
-        label_complete.pack(pady=10)
-
-        stats_text = (
-            f"Name: {player_name}\n"
-            f"Goals: {goals}\n"
-            f"Assists: {assists}\n"
-            f"Minutes Played: {minutes}\n"
-            f"Age: {age}\n"
-            f"Status: {status}\n\n"
-            f"Predicted Market Value: {pred_value}\n"
-            f"Predicted Goals Next Season: {pred_perf['predicted_goals']}\n"
-            f"Predicted Assists Next Season: {pred_perf['predicted_assists']}"
+    def _setup_ui(self):
+        self.main_container = ctk.CTkFrame(self, fg_color=FIELD_DARK_GREEN, corner_radius=0)
+        self.main_container.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        self._setup_header()
+        
+        self.tabview = ctk.CTkTabview(
+            self.main_container,
+            fg_color=FIELD_GREEN,
+            corner_radius=15,
+            border_width=2,
+            border_color=WHITE,
+            height=200
         )
+        self.tabview.pack(fill="x", pady=(0, 20))
+        
+        self.tab_input = self.tabview.add("📊 Direct Input")
+        self.input_tab = InputTab(self.tab_input, self._on_input_predict)
+        
+        self.tab_search = self.tabview.add("🔍 Search Player")
+        self.search_tab = SearchTab(self.tab_search, self._on_search)
+        
+        self.frame_animation = ctk.CTkFrame(
+            self.main_container,
+            width=1200,
+            height=650,
+            corner_radius=20,
+            fg_color=FIELD_GREEN,
+            border_width=3,
+            border_color=GOLD
+        )
+        self.frame_animation.pack(fill="both", expand=True, pady=(0, 0))
+        self.frame_animation.pack_propagate(False)
+        
+        self.results_display = ResultsDisplay(self.frame_animation)
 
-        final_label = AnimatedLabel(self.frame_animation, text="", font=("Roboto", 14), justify="left")
-        final_label.pack(pady=20)
+    def _setup_header(self):
+        self.header_frame = ctk.CTkFrame(
+            self.main_container,
+            fg_color=FIELD_GREEN,
+            corner_radius=20,
+            border_width=3,
+            border_color=GOLD
+        )
+        self.header_frame.pack(fill="x", pady=(0, 20))
+        
+        self.label_title = ctk.CTkLabel(
+            self.header_frame,
+            text="⚽ Football AI Prediction System ⚽",
+            font=("Roboto", 40, "bold"),
+            text_color=GOLD,
+            fg_color="transparent"
+        )
+        self.label_title.pack(pady=(20, 5))
+        
+        self.label_subtitle = ctk.CTkLabel(
+            self.header_frame,
+            text="Machine Learning Powered Player Performance & Market Value Predictor",
+            font=("Roboto", 18),
+            text_color=WHITE,
+            fg_color="transparent"
+        )
+        self.label_subtitle.pack(pady=(0, 20))
 
-        # Animate text typing
-        for i in range(len(stats_text)):
-            final_label.configure(text=stats_text[:i + 1])
-            self.frame_animation.update()
-            time.sleep(0.01)
+    def _load_data(self):
+        try:
+            self.players_df = load_and_combine()
+        except Exception as e:
+            print(f"Error loading data: {e}")
 
+    def _on_input_predict(self, *args, is_error=False):
+        if is_error:
+            error_msg = args[0] if args else "Unknown error"
+            self.results_display.show_message(error_msg, is_error=True)
+            return
+        
+        if len(args) == 4:
+            goals, assists, minutes, age = args
+            self.prediction_handler.predict_from_input_async(goals, assists, minutes, age)
+        else:
+            self.results_display.show_message("⚠️ Invalid input!", is_error=True)
+
+    def _on_search(self, query, is_error=False):
+        if is_error:
+            self.results_display.show_message(query, is_error=True)
+            return
+            
+        if self.players_df is None:
+            self.results_display.show_message(
+                "⏳ Loading player database...\nPlease wait and try again.",
+                is_error=False
+            )
+            return
+        self.prediction_handler.search_and_predict_async(query, self.players_df)
+
+    def _on_prediction_update(self, step_text, is_final, result_data):
+        if is_final:
+            if result_data and result_data.get('error'):
+                self.after_idle(
+                    lambda msg=step_text: self.results_display.show_message(msg, is_error=True)
+                )
+            elif result_data and 'stats_text' in result_data:
+                self.after_idle(
+                    lambda stats=result_data['stats_text']: self.results_display.show_results(stats)
+                )
+        else:
+            if step_text:
+                self.after_idle(
+                    lambda text=step_text: self.results_display.show_step(text)
+                )
 
 if __name__ == "__main__":
     app = App()
     app.mainloop()
-
-
