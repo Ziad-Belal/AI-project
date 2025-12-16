@@ -16,26 +16,32 @@ from .utils import (
 def DFS(graph, start):
     visited = set()
     stack = [start]
+    visited_order = []
 
     while stack:
         node = stack.pop()
         if node not in visited:
             visited.add(node)
-            print(node, end=' ')
+            visited_order.append(node)
             # reverse to keep order similar to recursive DFS
             stack.extend(reversed(graph[node]))
+    
+    return visited_order
 
 # Breadth First Search (BFS)
 def BFS(graph, start):
     visited = set()
     queue = deque([start])
+    visited_order = []
 
     while queue:
         node = queue.popleft()
         if node not in visited:
             visited.add(node)
-            print(node, end=' ')
+            visited_order.append(node)
             queue.extend(graph[node])
+    
+    return visited_order
 
 def _build_player_graph(df: pd.DataFrame):
     """Build a graph where players are nodes, edges if same squad"""
@@ -62,16 +68,8 @@ def _graph_search_related(query: str, df: pd.DataFrame):
             graph = _build_player_graph(df)
             start = row['Player']
             # Use BFS to find teammates
-            visited = set()
-            queue = deque([start])
-            teammates = []
-            while queue:
-                node = queue.popleft()
-                if node not in visited:
-                    visited.add(node)
-                    if node != start:
-                        teammates.append(node)
-                    queue.extend(graph.get(node, []))
+            visited_order = BFS(graph, start)
+            teammates = [node for node in visited_order if node != start]
             if teammates:
                 return df[df['Player'].isin(teammates)].iloc[0]
     return None
