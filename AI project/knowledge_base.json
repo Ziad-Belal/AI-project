@@ -1,0 +1,6 @@
+{
+    "insert title": "Selection.TypeText \"{text}\"",
+    "bold text": "Selection.Font.Bold = True",
+    "insert table": "ActiveDocument.Tables.Add Range:=Selection.Range, NumRows:=2, NumColumns:=2",
+    "page break": "Selection.InsertBreak Type:=wdPageBreak"
+}
