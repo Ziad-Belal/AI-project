@@ -46,24 +46,23 @@ The goal is to help football managers and analysts **explore player performance,
 ```bash
 git clone https://github.com/<your-username>/football-ai-prediction.git
 cd football-ai-prediction
-
+```
 2. Install dependencies:
-
-
+```bash
 
 pip install -r requirements.txt
-
+```
 3. Run the application:
 
-
+```bash
 
 python main.py
 
-
+```
 ---
 
 🗂 Project Structure
-
+```bash
 football-ai-prediction/
 │
 ├─ main.py                 # Main GUI application
